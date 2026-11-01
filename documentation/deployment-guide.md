@@ -255,6 +255,8 @@ sudo bash 09-ticket-reassign.sh
 sudo bash 10-ticket-close.sh
 sudo bash 11-systemd-timers.sh       # installs AND enables+starts all cron timers — see caution below
 sudo bash 12-rdap-lookup.sh
+sudo bash 13-rust-toolchain.sh       # Rust toolchain + offline CARGO_HOME for tuner-dev
+                                      #   requires 03-tunerdev-checkout.sh to have run first
 ```
 
 **`11-systemd-timers.sh` enables and starts every timer immediately** —
