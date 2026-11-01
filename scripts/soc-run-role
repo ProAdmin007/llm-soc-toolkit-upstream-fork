@@ -330,7 +330,13 @@ envf="$(mktemp)"; chmod 600 "$envf"
 anomf=""                                          # set for analyst below
 tmpfiles=("$envf")                                # every entry rm'd on ANY exit path
 trap 'rm -f "${tmpfiles[@]}"' EXIT
-printf '%s=%s\n' "$cred_var" "$(cat "$cred_file")" > "$envf"
+# Both documented credential files (deployment-guide.md §6) already
+# contain the full `KEY=VALUE` line (e.g. `CLAUDE_CODE_OAUTH_TOKEN=...`),
+# not a bare secret -- prefixing cred_var= again here produced
+# `CLAUDE_CODE_OAUTH_TOKEN=CLAUDE_CODE_OAUTH_TOKEN=...`, an env var the
+# process never actually sets, so every unattended run with a subscription
+# token failed auth with a 401 regardless of how valid the token was.
+cat "$cred_file" > "$envf"
 
 # ---- mode-aware --bare (see header): enforce -> --bare (native settings
 #      enforce, hook redundant); audit -> no --bare (hook fires + logs).
