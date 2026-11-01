@@ -125,7 +125,13 @@ chown "$HUMAN:socroles" agent-logs; chmod 750 agent-logs
 [[ -f agent-logs/.gitkeep ]] && { chown "$HUMAN:socroles" agent-logs/.gitkeep; chmod 640 agent-logs/.gitkeep; }
 for r in analyst specialist tuner-dev soclead; do
   u="soc-${r/tuner-dev/tunerdev}"
-  [[ -f "agent-logs/$r.log" ]] && { chown "$u:socroles" "agent-logs/$r.log"; chmod 640 "agent-logs/$r.log"; }
+  # Pre-create, don't just conditionally chown: agent-logs/ is 0750 with no
+  # group-write, so a role whose log file doesn't exist yet (its very first
+  # run) can never create it itself -- it would hit a write-denied error
+  # trying to log its own result, discovered live the first time soclead and
+  # tuner-dev each ran for the first time after provisioning.
+  touch "agent-logs/$r.log"
+  chown "$u:socroles" "agent-logs/$r.log"; chmod 640 "agent-logs/$r.log"
 done
 log "agent-logs done"
 
